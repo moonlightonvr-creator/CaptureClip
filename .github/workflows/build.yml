@@ -19,5 +19,3 @@ jobs:
         with:
           name: CaptureClip-APK
           path: app/build/outputs/apk/debug/*.apk
- 
-
