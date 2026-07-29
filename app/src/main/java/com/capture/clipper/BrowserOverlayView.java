@@ -54,5 +54,3 @@ public class BrowserOverlayView extends WebView {
         return super.onTouchEvent(event);
     }
 }
- 
-
