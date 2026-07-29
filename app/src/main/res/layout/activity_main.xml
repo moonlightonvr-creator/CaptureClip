@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#111111">
+    <LinearLayout android:id="@+id/panelControls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="8dp">
+        <TextView android:id="@+id/statusText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Initializing..."
+            android:textColor="#888888"
+            android:textSize="12sp" android:paddingBottom="4dp"/>
+        <LinearLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <Spinner android:id="@+id/selectQuality"
+                android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:entries="@array/imValues"
+                android:background="#222222" android:padding="4dp"/>
+            <EditText android:id="@+id/inputBitrate"
+                android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:hint="Bitrate (kbps)"
+                android:text="2500" android:textColor="#FFFFFF"
+                android:inputType="number" android:padding="4dp"
+                android:background="#222222" android:layout_marginStart="4dp"/>
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical" android:layout_marginTop="4dp">
+            <TextView android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="Buffer:"
+                android:textColor="#888888" android:textSize="12sp"/>
+            <SeekBar android:id="@+id/durationSeek"
+                android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:max="30" android:progress="0"/>
+            <TextView android:id="@+id/durationLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="30s"
+                android:textColor="#FFFFFF" android:textSize="12sp"/>
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" android:layout_marginTop="4dp">
+            <EditText android:id="@+id/inputUrl"
+                android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:hint="Overlay URL"
+                android:textColor="#FFFFFF" android:textSize="13sp"
+                android:background="#222222" android:padding="4dp"/>
+            <Button android:id="@+id/btnLoad"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="LOAD"/>
+            <Button android:id="@+id/btnToggleDrag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="DRAG"/>
+        </LinearLayout>
+    </LinearLayout>
+    <FrameLayout android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/panelControls"
+        android:layout_above="@id/btnClip"
+        android:background="#000000">
+        <SurfaceView android:id="@+id/captureSurface"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+        <com.capture.clipper.BrowserOverlayView
+            android:id="@+id/browserSource"
+            android:layout_width="160dp"
+            android:layout_height="120dp"
+            android:layout_gravity="top|start"
+            android:background="#88000000" />
+    </FrameLayout>
+    <Button android:id="@+id/btnClip"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="CLIP BUFFER"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#FF0055"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="10dp"/>
+</RelativeLayout>
+ 
