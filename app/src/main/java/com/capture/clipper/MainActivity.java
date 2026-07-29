@@ -3,21 +3,29 @@ package com.capture.clipper;
 import android.content.Context;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
+import android.media.MediaCodec;
+import android.media.MediaCodecInfo;
+import android.media.MediaFormat;
 import android.os.Bundle;
+import android.view.MotionEvent;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
+import android.util.AttributeSet;
 import androidx.appcompat.app.AppCompatActivity;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback {
     private SurfaceView captureSurface;
@@ -27,10 +35,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private EditText inputBitrate, inputUrl;
     private Spinner selectQuality;
     
-    private boolean isBuffering = false;
-    private Thread hardwareStreamThread;
-    private final ByteArrayOutputStream videoRAMBuffer = new ByteArrayOutputStream(1024 * 1024 * 20);
+    private VideoCaptureEngine captureEngine;
     private UsbManager usbManager;
+    private boolean isCapturing = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,8 +56,36 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         inputBitrate = (EditText) findViewById(R.id.inputBitrate);
         inputUrl = (EditText) findViewById(R.id.inputUrl);
 
+        String[] qualityOptions = {"1080p (Pro Quality)", "720p (Fast Stream)", "480p (Low Bandwidth)"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, qualityOptions);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        selectQuality.setAdapter(adapter);
+
         usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
         browserSource.loadUrl("https://google.com");
+
+        captureEngine = new VideoCaptureEngine();
+        captureEngine.setCallback(new VideoCaptureEngine.Callback() {
+            @Override
+            public void onStarted() {
+                runOnUiThread(() -> Toast.makeText(MainActivity.this, "Stream Active!", Toast.LENGTH_SHORT).show());
+            }
+
+            @Override
+            public void onStopped() {
+                runOnUiThread(() -> Toast.makeText(MainActivity.this, "Stream Stopped!", Toast.LENGTH_SHORT).show());
+            }
+
+            @Override
+            public void onError(String msg) {
+                runOnUiThread(() -> Toast.makeText(MainActivity.this, "Error: " + msg, Toast.LENGTH_SHORT).show());
+            }
+
+            @Override
+            public void onClippaved(File file) {
+                runOnUiThread(() -> Toast.makeText(MainActivity.this, "Clip Saved to Gallery!", Toast.LENGTH_LONG).show());
+            }
+        });
 
         btnLoad.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,9 +98,12 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         btnClip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String qual = selectQuality.getSelectedItem().toString();
-                String bit = inputBitrate.getText().toString().trim();
-                saveClip(qual, bit);
+                if (isCapturing) {
+                    captureEngine.stopCapture();
+                    isCapturing = false;
+                } else {
+                    Toast.makeText(MainActivity.this, "Processing buffer...", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -80,7 +118,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        stopHardwareUVCStream();
+        if (captureEngine != null) {
+            captureEngine.stopCapture();
+        }
     }
 
     private void startHardwareUVCStream() {
@@ -90,44 +130,111 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             return;
         }
 
-        isBuffering = true;
-        hardwareStreamThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                byte[] frameChunk = new byte[1024 * 4];
-                while (isBuffering) {
-                    synchronized (videoRAMBuffer) {
-                        if (videoRAMBuffer.size() > 1024 * 1024 * 15) {
-                            videoRAMBuffer.reset();
-                        }
-                        videoRAMBuffer.write(frameChunk, 0, frameChunk.length);
-                    }
-                    try { Thread.sleep(16); } catch (InterruptedException e) { break; }
-                }
-            }
-        });
-        hardwareStreamThread.start();
-        Toast.makeText(this, "SonionClip Engine Online!", Toast.LENGTH_SHORT).show();
-    }
+        UsbDevice device = deviceList.values().iterator().next();
+        String bitrateText = inputBitrate.getText().toString().trim();
+        int targetBitrate = bitrateText.isEmpty() ? 2500000 : Integer.parseInt(bitrateText) * 1000;
 
-    private void stopHardwareUVCStream() {
-        isBuffering = false;
-        if (hardwareStreamThread != null) {
-            hardwareStreamThread.interrupt();
-        }
-    }
-
-    private void saveClip(String quality, String bitrate) {
         try {
-            File file = new File(getExternalFilesDir(null), "SonionGoal.mp4");
-            FileOutputStream fos = new FileOutputStream(file);
-            synchronized (videoRAMBuffer) {
-                videoRAMBuffer.writeTo(fos);
-            }
-            fos.close();
-            Toast.makeText(this, "Clipped! " + quality + " @ " + bitrate + "Kbps", Toast.LENGTH_LONG).show();
+            captureEngine.startcapture(device, surfaceHolder.getSurface(), 1920, 1080, targetBitrate);
+            isCapturing = true;
         } catch (Exception e) {
-            Toast.makeText(this, "Writing File Error", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Hardware Link Fault: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
+    }
+}
+
+// =================================================================
+// MERGED HOOK CLASSES (Eliminates ClassNotFound Layout Crashes)
+// =================================================================
+class BrowserOverlayView extends WebView {
+    private float touchX, touchY;
+
+    public BrowserOverlayView(Context context) { super(context); init(); }
+    public BrowserOverlayView(Context context, AttributeSet attrs) { super(context, attrs); init(); }
+
+    private void init() {
+        getSettings().setJavaScriptEnabled(true);
+        getSettings().setDomStorageEnabled(true);
+        setWebViewClient(new WebViewClient());
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                touchX = getX() - event.getRawX();
+                touchY = getY() - event.getRawY();
+                break;
+            case MotionEvent.ACTION_MOVE:
+                animate().x(event.getRawX() + touchX).y(event.getRawY() + touchY).setDuration(0).start();
+                break;
+            default:
+                return super.onTouchEvent(event);
+        }
+        return true;
+    }
+}
+
+class VideoCaptureEngine {
+    private static final int FPS = 30;
+    private Surface previewSurface;
+    private MediaCodec encoder;
+    private volatile boolean running;
+    private Thread encoderOutputThread;
+    
+    private final ConcurrentLinkedQueue<byte[]> frameBuffer = new ConcurrentLinkedQueue<>();
+    private long bufferDurationUs = 30_000_000L;
+    private long oldestPts, latestPts;
+    private MediaFormat trackFormat;
+    private int videoWidth, videoHeight, videoBitrate;
+    private Callback callback;
+
+    public interface Callback {
+        void onStarted();
+        void onStopped();
+        void onError(String msg);
+        void onClippaved(File file);
+    }
+
+    public void setCallback(Callback cb) { this.callback = cb; }
+
+    public void startcapture(UsbDevice device, Surface surface, int width, int height, int bitrate) throws Exception {
+        this.videoWidth = width;
+        this.videoHeight = height;
+        this.videoBitrate = bitrate;
+        this.previewSurface = surface;
+        
+        setupEncoder();
+        running = true;
+        
+        if (callback != null) callback.onStarted();
+    }
+
+    public void stopCapture() {
+        running = false;
+        if (encoderOutputThread != null) {
+            try { encoderOutputThread.join(2000); } catch (Exception ignored) {}
+            encoderOutputThread = null;
+        }
+        if (encoder != null) {
+            try { encoder.stop(); } catch (Exception ignored) {}
+            try { encoder.release(); } catch (Exception ignored) {}
+            encoder = null;
+        }
+        frameBuffer.clear();
+        oldestPts = latestPts = 0;
+        trackFormat = null;
+        if (callback != null) callback.onStopped();
+    }
+
+    private void setupEncoder() throws Exception {
+        MediaFormat format = MediaFormat.createVideoFormat("video/avc", videoWidth, videoHeight);
+        format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible);
+        format.setInteger(MediaFormat.KEY_BIT_RATE, videoBitrate);
+        format.setInteger(MediaFormat.KEY_FRAME_RATE, FPS);
+        format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 2);
+        encoder = MediaCodec.createEncoderByType("video/avc");
+        encoder.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
+        encoder.start();
     }
 }
