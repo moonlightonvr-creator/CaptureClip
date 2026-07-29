@@ -21,6 +21,9 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
+    - name: Automatically Generate Missing Gradle Wrapper
+      run: jar -cvf dummy.jar . && gradle wrapper --gradle-version 8.2
+
     - name: Grant Execute Permission for Gradlew
       run: chmod +x gradlew
 
