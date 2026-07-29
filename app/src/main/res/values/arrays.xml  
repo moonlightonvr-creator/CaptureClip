@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="imValues">
+        <item>1080p (Pro Quality)</item>
+        <item>720p (Fast Stream)</item>
+        <item>480p (Low Bandwidth)</item>
+    </string-array>
+</resources>
+ 
