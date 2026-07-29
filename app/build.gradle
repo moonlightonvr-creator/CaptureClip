@@ -30,7 +30,6 @@ android {
 repositories {
     google()
     mavenCentral()
-    // Unlocks the external open-source library database paths natively
     maven { url 'https://jitpack.io' }
 }
 
@@ -38,6 +37,6 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.11.0'
     
-    // Automatically injects the missing low-level C++ camera hardware binary libraries
-    implementation 'com.github.saki4510t:UVCCamera:v2.3.4'
+    // Updated modern library path that actually exists on the servers
+    implementation 'com.github.jiangdongguo.AndroidUSBCamera:libuvccamera:v3.1.0'
 }
