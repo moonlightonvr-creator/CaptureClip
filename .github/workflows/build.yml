@@ -1,6 +1,9 @@
 name: Build APK
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   build:
@@ -12,9 +15,7 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
       - name: Build APK
-        run: |
-          chmod +x gradlew
-          ./gradlew assembleDebug
+        run: chmod +x gradlew && ./gradlew assembleDebug
       - uses: actions/upload-artifact@v3
         with:
           name: CaptureClip-APK
