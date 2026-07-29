@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private EditText inputBitrate, inputUrl;
     private Spinner selectQuality;
     
-    private VideoCaptureEngine captureEngine;
+    private com.capture.clipper.VideoCaptureEngine captureEngine;
     private UsbManager usbManager;
     private boolean isCapturing = false;
 
@@ -47,9 +47,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
         browserSource.loadUrl("https://google.com");
 
-        // Safely wire the video capture driver interface engine
-        captureEngine = new VideoCaptureEngine();
-        captureEngine.setCallback(new VideoCaptureEngine.Callback() {
+        captureEngine = new com.capture.clipper.VideoCaptureEngine();
+        captureEngine.setCallback(new com.capture.clipper.VideoCaptureEngine.Callback() {
             @Override
             public void onStarted() {
                 runOnUiThread(() -> Toast.makeText(MainActivity.this, "Stream Active!", Toast.LENGTH_SHORT).show());
@@ -82,7 +81,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         btnClip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Instantly trigger your engine's internal hardware buffer extraction task
                 if (isCapturing) {
                     captureEngine.stopCapture();
                     isCapturing = false;
@@ -115,13 +113,12 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             return;
         }
 
-        // Fetch the first physical USB hardware instance plugged into your phone
         UsbDevice device = deviceList.values().iterator().next();
         String bitrateText = inputBitrate.getText().toString().trim();
         int targetBitrate = bitrateText.isEmpty() ? 2500000 : Integer.parseInt(bitrateText) * 1000;
 
         try {
-            // Unlocking the exact target layout coordinates requested on line 43 of your driver file
+            // Fixed naming case step to line up with the lowercase 'c' inside your file
             captureEngine.startcapture(device, surfaceHolder.getSurface(), 1920, 1080, targetBitrate);
             isCapturing = true;
         } catch (Exception e) {
@@ -129,4 +126,3 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         }
     }
 }
-
