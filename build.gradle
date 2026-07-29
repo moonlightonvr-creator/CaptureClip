@@ -5,7 +5,8 @@ buildscript {
         maven { url 'https://jitpack.io' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.3'
+        // Upgraded to a modern Gradle plugin version compatible with current GitHub Actions
+        classpath 'com.android.tools.build:gradle:8.2.2'
     }
 }
 
@@ -20,4 +21,3 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
- 
