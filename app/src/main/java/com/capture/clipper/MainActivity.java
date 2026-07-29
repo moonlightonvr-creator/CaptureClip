@@ -143,9 +143,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     }
 }
 
-// =================================================================
-// MERGED HOOK CLASSES (Eliminates ClassNotFound Layout Crashes)
-// =================================================================
 class BrowserOverlayView extends WebView {
     private float touchX, touchY;
 
