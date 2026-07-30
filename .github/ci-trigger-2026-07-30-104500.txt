@@ -1,0 +1,5 @@
+Triggering CI build (manual)
+
+This file was created to force a push and trigger GitHub Actions to build the debug APK.
+
+Timestamp: 2026-07-30T10:45:00Z
