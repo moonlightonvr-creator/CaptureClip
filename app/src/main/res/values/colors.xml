@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Existing basics -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Added missing colors referenced from activity_main.xml -->
+    <color name="background">#FFFFFFFF</color>
+    <color name="onBackground">#FF000000</color>
+    <color name="primary">#FF6200EE</color>
+    <color name="onPrimary">#FFFFFFFF</color>
+    <color name="surface">#FFFFFFFF</color>
 </resources>
