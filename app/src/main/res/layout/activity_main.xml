@@ -1,78 +1,128 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#111111">
+    android:background="@color/background">
 
-    <LinearLayout
-        android:id="@+id/panelControls"
-        android:layout_width="match_parent"
+    <!-- Top bar with title and settings button -->
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="10dp">
+        android:text="CaptureClip"
+        android:textColor="@color/onBackground"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:padding="12dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btnSettings" />
 
-        <Spinner
-            android:id="@+id/selectQuality"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#222222"
-            android:padding="5dp"/>
+    <ImageButton
+        android:id="@+id/btnSettings"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:contentDescription="Settings"
+        android:src="@android:drawable/ic_menu_manage"
+        android:backgroundTint="@color/primary"
+        android:tint="@color/onPrimary"
+        android:scaleType="centerInside"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_margin="8dp" />
 
-        <EditText
-            android:id="@+id/inputBitrate"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Bitrate (e.g. 2500)"
-            android:text="2500"
-            android:textColor="#FFFFFF"
-            android:inputType="number"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <EditText
-                android:id="@+id/inputUrl"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="Paste Overlay URL"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"/>
-            <Button
-                android:id="@+id/btnLoad"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="LOAD"/>
-        </LinearLayout>
-    </LinearLayout>
-
+    <!-- Preview area (plays last saved clip) -->
     <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/panelControls"
-        android:layout_above="@id/btnClip"
-        android:background="#000000">
+        android:id="@+id/previewFrame"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#000"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/panelControls"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp">
 
         <SurfaceView
             android:id="@+id/captureSurface"
             android:layout_width="match_parent"
-            android:layout_height="220dp"
-            android:layout_gravity="center" />
+            android:layout_height="match_parent" />
+
+        <VideoView
+            android:id="@+id/previewView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
 
         <com.capture.clipper.BrowserOverlayView
             android:id="@+id/browserSource"
             android:layout_width="150dp"
             android:layout_height="150dp"
-            android:layout_gravity="top|left" />
+            android:layout_margin="8dp" />
+
     </FrameLayout>
 
-    <Button
-        android:id="@+id/btnClip"
-        android:layout_width="match_parent"
-        android:layout_height="65dp"
-        android:text="CLIP LAST 30 SECONDS"
-        android:backgroundTint="#FF0055"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="15dp"/>
-</RelativeLayout>
+    <!-- Bottom controls panel -->
+    <LinearLayout
+        android:id="@+id/panelControls"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:background="@color/surface"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Spinner
+                android:id="@+id/selectQuality"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@+id/inputBitrate"
+                android:layout_width="110dp"
+                android:layout_height="wrap_content"
+                android:hint="Bitrate"
+                android:inputType="number"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <EditText
+                android:id="@+id/inputUrl"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:hint="Overlay URL" />
+
+            <Button
+                android:id="@+id/btnLoad"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="LOAD" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnClip"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="CLIP LAST 30 SECONDS"
+            android:layout_marginTop="10dp" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
