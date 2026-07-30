@@ -42,7 +42,28 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        // Wrap setContentView in a try/catch so startup inflate crashes are captured on-device
+        try {
+            setContentView(R.layout.activity_main);
+        } catch (Exception e) {
+            // try to write stacktrace to a file the user can access from the phone
+            try {
+                File f = new File(getExternalFilesDir(null), "startup_crash.txt");
+                try (FileOutputStream fos = new FileOutputStream(f, true)) {
+                    fos.write(android.util.Log.getStackTraceString(e).getBytes());
+                }
+            } catch (Exception ignored) {}
+
+            // show the stacktrace in an alert so the user can copy it
+            new android.app.AlertDialog.Builder(this)
+                    .setTitle("Startup crash")
+                    .setMessage(android.util.Log.getStackTraceString(e))
+                    .setPositiveButton("OK", null)
+                    .show();
+
+            // stop further setup
+            return;
+        }
 
         captureSurface = findViewById(R.id.captureSurface);
         surfaceHolder = captureSurface.getHolder();
