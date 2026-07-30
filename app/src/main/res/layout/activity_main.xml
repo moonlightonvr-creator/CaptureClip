@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="@color/background">
 
-    <!-- Top bar with title and settings button -->
+    <!-- Top bar with title, status and settings button -->
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="0dp"
@@ -32,13 +32,35 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_margin="8dp" />
 
-    <!-- Preview area (plays last saved clip) -->
+    <!-- Camera status and UVC control -->
+    <TextView
+        android:id="@+id/tvCameraStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Camera: Unknown"
+        android:textColor="@color/onBackground"
+        android:layout_marginStart="12dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+
+    <Button
+        android:id="@+id/btnUseUvc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Use UVC"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnSettings"
+        android:layout_margin="8dp"
+        android:backgroundTint="@color/primary"
+        android:tint="@color/onPrimary" />
+
+    <!-- Preview area (plays last saved clip / live preview) -->
     <FrameLayout
         android:id="@+id/previewFrame"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="#000"
-        app:layout_constraintTop_toBottomOf="@id/tvTitle"
+        app:layout_constraintTop_toBottomOf="@id/tvCameraStatus"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/panelControls"
@@ -56,11 +78,15 @@
             android:layout_height="match_parent"
             android:visibility="gone" />
 
+        <!-- Styled overlay: rounded background + elevation -->
         <com.capture.clipper.BrowserOverlayView
             android:id="@+id/browserSource"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:layout_margin="8dp" />
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_margin="12dp"
+            android:backgroundTint="@color/surface"
+            android:elevation="6dp"
+            android:clipToPadding="false" />
 
     </FrameLayout>
 
