@@ -4,10 +4,15 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!-- Added missing colors referenced from activity_main.xml -->
-    <color name="background">#FFFFFFFF</color>
-    <color name="onBackground">#FF000000</color>
-    <color name="primary">#FF6200EE</color>
+    <!-- Added missing colors referenced from activity_main.xml and overlays -->
+    <color name="background">#FFF5F7FA</color>
+    <color name="onBackground">#FF121212</color>
+    <color name="primary">#FF0D47A1</color>
     <color name="onPrimary">#FFFFFFFF</color>
     <color name="surface">#FFFFFFFF</color>
+
+    <!-- Preset swatches -->
+    <color name="quality_720p60">#FF2E7D32</color>
+    <color name="quality_720p30">#FF1565C0</color>
+    <color name="quality_480p30">#FFF57F17</color>
 </resources>
