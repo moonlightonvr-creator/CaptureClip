@@ -1,0 +1,5 @@
+Triggering CI build
+
+This file was created to trigger the GitHub Actions build for debug APK.
+
+Timestamp: 2026-07-30T10:30:00Z
