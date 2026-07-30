@@ -1,0 +1,5 @@
+Retrying CI build
+
+This file was created to force another GitHub Actions run to build the debug APK.
+
+Timestamp: 2026-07-30T10:58:00Z
